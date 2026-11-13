@@ -1,0 +1,61 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Arial, sans-serif; background: #faf7f2; color: #222; }
+:root { --green: #1b6b3a; --orange: #e8801a; }
+
+.top { position: sticky; top: 0; z-index: 10; display: flex; justify-content: space-between;
+  align-items: center; padding: 12px 16px; background: var(--green); color: #fff; }
+.top h1 { font-size: 18px; }
+.top h1 span { color: #ffd9a8; font-weight: normal; font-size: 14px; }
+.cart-btn { background: var(--orange); color: #fff; border: 0; padding: 8px 14px;
+  border-radius: 20px; font-size: 15px; cursor: pointer; }
+
+.hero { text-align: center; padding: 28px 16px; background: #fff; }
+.hero h2 { color: var(--green); margin-bottom: 6px; }
+.hero p { color: #666; margin-bottom: 14px; }
+.catering { display: inline-block; color: var(--orange); border: 2px solid var(--orange);
+  padding: 8px 16px; border-radius: 20px; text-decoration: none; font-weight: bold; }
+
+.tabs { display: flex; gap: 8px; overflow-x: auto; padding: 12px 16px; background: #fff;
+  position: sticky; top: 52px; z-index: 9; border-bottom: 1px solid #eee; }
+.tab { white-space: nowrap; border: 1px solid #ddd; background: #fff; padding: 8px 14px;
+  border-radius: 20px; cursor: pointer; font-size: 14px; }
+.tab.active { background: var(--green); color: #fff; border-color: var(--green); }
+
+.menu { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px; padding: 16px; max-width: 1000px; margin: 0 auto; }
+.card { background: #fff; border-radius: 12px; padding: 14px; text-align: center;
+  box-shadow: 0 1px 4px rgba(0,0,0,.08); display: flex; flex-direction: column; gap: 6px; }
+.card .emoji { font-size: 40px; }
+.card h4 { font-size: 15px; }
+.card .price { color: var(--green); font-weight: bold; }
+.card button { background: var(--orange); color: #fff; border: 0; padding: 8px;
+  border-radius: 8px; cursor: pointer; margin-top: auto; }
+.card.out { opacity: .5; }
+.card.out button { background: #999; cursor: not-allowed; }
+
+.foot { text-align: center; padding: 20px; color: #888; font-size: 13px; }
+
+.overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 20; }
+.overlay.show { display: block; }
+.drawer { position: fixed; top: 0; right: -100%; width: 100%; max-width: 400px; height: 100%;
+  background: #fff; z-index: 21; transition: right .3s; overflow-y: auto; padding: 16px; }
+.drawer.open { right: 0; }
+.drawer-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.x { border: 0; background: none; font-size: 22px; cursor: pointer; }
+
+.cart-item { display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 0; border-bottom: 1px solid #eee; gap: 8px; }
+.cart-item small { color: #777; }
+.qty { display: flex; align-items: center; gap: 8px; }
+.qty button { width: 28px; height: 28px; border: 1px solid #ccc; background: #fff;
+  border-radius: 50%; cursor: pointer; }
+.empty { text-align: center; color: #888; padding: 20px; }
+
+.checkout { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
+.checkout input:not([type=radio]), .checkout textarea { padding: 10px; border: 1px solid #ccc;
+  border-radius: 8px; font-size: 15px; font-family: inherit; }
+.row { display: flex; gap: 20px; }
+.totals div { display: flex; justify-content: space-between; padding: 3px 0; }
+.grand { font-weight: bold; font-size: 17px; border-top: 1px solid #eee; margin-top: 4px; padding-top: 6px; }
+.order-btn { background: var(--green); color: #fff; border: 0; padding: 14px;
+  border-radius: 10px; font-size: 16px; cursor: pointer; }

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Track order - Kwaido and More Catering</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background: #faf7f2; color: #222; }
+    header { background: #1b6b3a; color: #fff; padding: 14px 16px; display: flex; justify-content: space-between; }
+    header a { color: #fff; }
+    main { max-width: 480px; margin: 0 auto; padding: 20px 16px; }
+    form { display: flex; gap: 8px; margin-bottom: 20px; }
+    input { flex: 1; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; text-transform: uppercase; }
+    button { background: #e8801a; color: #fff; border: 0; padding: 0 18px; border-radius: 8px; font-size: 16px; cursor: pointer; }
+    .card { background: #fff; border-radius: 12px; padding: 18px; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+    .steps { display: flex; justify-content: space-between; margin: 18px 0; }
+    .step { flex: 1; text-align: center; font-size: 12px; color: #999; position: relative; }
+    .dot { width: 26px; height: 26px; border-radius: 50%; background: #ddd; margin: 0 auto 6px; line-height: 26px; color: #fff; }
+    .step.done { color: #1b6b3a; font-weight: bold; }
+    .step.done .dot { background: #1b6b3a; }
+    .msg { color: #b00020; }
+    ul { margin: 10px 0 0 18px; }
+  </style>
+</head>
+<body>
+  <header><b>Kwaido and More Catering</b><a href="index.html">Back to menu</a></header>
+  <main>
+    <h2 style="margin-bottom:12px">Track your order</h2>
+    <form id="f">
+      <input id="code" placeholder="Order code e.g. KW1A2B3C" required>
+      <button>Track</button>
+    </form>
+    <div id="result"></div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script>
+    const $ = id => document.getElementById(id);
+    const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+    const naira = n => "₦" + Number(n).toLocaleString();
+    let timer = null;
+
+    async function track(code) {
+      const { data, error } = await sb.rpc("track_order", { p_code: code });
+      if (error) { $("result").innerHTML = `<p class="msg">Something went wrong. Try again.</p>`; return; }
+      if (!data) { $("result").innerHTML = `<p class="msg">No order found with that code.</p>`; return; }
+
+      const steps = data.mode === "delivery"
+        ? ["New", "Preparing", "On The Way", "Delivered"]
+        : ["New", "Preparing", "Ready", "Delivered"];
+      const idx = steps.indexOf(data.status);
+
+      let body;
+      if (data.status === "Cancelled") {
+        body = `<p class="msg"><b>This order was cancelled.</b></p>`;
+      } else {
+        body = `<div class="steps">` + steps.map((s, i) =>
+          `<div class="step ${i <= idx ? "done" : ""}"><div class="dot">${i <= idx ? "✓" : i + 1}</div>${s === "New" ? "Received" : s}</div>`
+        ).join("") + `</div>`;
+      }
+
+      $("result").innerHTML = `<div class="card">
+        <b>Order ${esc(data.code)}</b> · ${data.mode === "delivery" ? "Delivery" : "Pickup"}
+        ${body}
+        ${data.rider && data.status !== "Delivered" ? `<p>Rider: <b>${esc(data.rider)}</b></p>` : ""}
+        <ul>${data.items.map(i => `<li>${i.qty} x ${esc(i.name)}</li>`).join("")}</ul>
+        <p style="margin-top:10px"><b>Total: ${naira(data.total)}</b></p>
+      </div>`;
+
+      clearInterval(timer);
+      if (data.status !== "Delivered" && data.status !== "Cancelled") {
+        timer = setInterval(() => track(code), 20000);
+      }
+    }
+
+    $("f").onsubmit = e => { e.preventDefault(); track($("code").value.trim()); };
+
+    const c = new URLSearchParams(location.search).get("code");
+    if (c) { $("code").value = c; track(c); }
+  </script>
+</body>
+</html>
