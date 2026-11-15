@@ -3,13 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Alkhair.Catering and Drinks.Kano</title>
+  <title>Alkhair Drinks Catering Kano</title>
   <link rel="stylesheet" href="style.css">
   <style>
     [hidden] { display: none !important; }
     .card { cursor: pointer; }
     .card .p-img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 8px; }
     .brand { display: flex; align-items: center; gap: 8px; }
+    .brand h1 { font-size: 22px; line-height: 1.1; }
+    .brand h1 span { font-size: 13px; }
     .logo { height: 38px; width: auto; max-width: 90px; object-fit: contain; border-radius: 6px; background: #fff; padding: 2px; }
     .hright { display: flex; gap: 10px; align-items: center; }
     .hright a { color: #fff; font-size: 14px; }
@@ -59,7 +61,7 @@
   <header class="top">
     <div class="brand">
       <img id="logo" class="logo" alt="Logo" hidden>
-      <h1>Alkhair <span>Catering and Drinks.kano</span></h1>
+      <h1>Alkhair Drinks <span>Catering · Kano</span></h1>
     </div>
     <div class="hright">
       <span id="hello" class="hello"></span>
@@ -72,13 +74,13 @@
   <section class="hero">
     <h2>Fresh food, delivered to you</h2>
     <p>Order online for delivery or pickup.</p>
-    <a class="catering" id="cateringLink" href="#" target="_blank">Catering enquiry (events &amp; parties)</a>
+    <a class="catering" id="cateringLink" href="#" target="_blank" hidden>Catering enquiry (events &amp; parties)</a>
   </section>
 
   <nav id="tabs" class="tabs"></nav>
   <main id="menu" class="menu"><p class="empty">Loading menu...</p></main>
 
-  <footer class="foot">© Kwaido and More Catering · <a href="track.html" style="color:inherit">Track an order</a></footer>
+  <footer class="foot">© Alkhair Drinks Catering Kano · <a href="track.html" style="color:inherit">Track an order</a></footer>
 
   <div id="overlay" class="overlay"></div>
   <aside id="drawer" class="drawer">

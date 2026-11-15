@@ -1,16 +1,20 @@
-// ====== EDIT THESE ======
-const CONFIG = {
-  name: "Kwaido and More Catering",
-  whatsapp: "2340000000000" // 234 + your number without the first 0
-};
-// ========================
+const CONFIG = { name: "Alkhair Drinks Catering Kano" };
 
 const naira = n => "₦" + Number(n).toLocaleString();
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
+// Turns 0803 123 4567 or +234 803 123 4567 into 2348031234567
+function normalizePhone(p) {
+  let d = String(p || "").replace(/\D/g, "");
+  if (d.startsWith("2340")) d = "234" + d.slice(4);
+  else if (d.startsWith("0")) d = "234" + d.slice(1);
+  return d;
+}
+
 let MENU = [];
 let deliveryFee = 0;
+let waNumber = "";
 let activeCat = "All";
 let session = null;
 let authMode = "login";
@@ -36,7 +40,7 @@ function savePending() {
 async function loadData() {
   const [p, s] = await Promise.all([
     sb.from("products").select("*").order("sort").order("id"),
-    sb.from("settings").select("*").in("key", ["delivery_fee", "logo_url"])
+    sb.from("settings").select("*").in("key", ["delivery_fee", "logo_url", "whatsapp"])
   ]);
   if (p.error) {
     $("menu").innerHTML = '<p class="empty">Could not load the menu. Please refresh.</p>';
@@ -46,7 +50,12 @@ async function loadData() {
   const set = {};
   (s.data || []).forEach(r => set[r.key] = r.value);
   deliveryFee = Number(set.delivery_fee) || 0;
+  waNumber = normalizePhone(set.whatsapp);
   if (set.logo_url) { $("logo").src = set.logo_url; $("logo").hidden = false; }
+  if (waNumber) {
+    $("cateringLink").href = `https://wa.me/${waNumber}?text=${encodeURIComponent("Hello, I want to make a catering enquiry.")}`;
+    $("cateringLink").hidden = false;
+  }
   renderTabs();
   renderMenu();
   renderCart();
@@ -362,7 +371,9 @@ Phone: ${phone}${isDelivery ? "\nAddress: " + address : ""}${notes ? "\nNotes: "
 
 Track: ${trackUrl}`;
 
-  const wa = `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(msg)}`;
+  const waButton = waNumber
+    ? `<a class="order-btn" style="display:block;text-decoration:none;margin:14px 0" href="https://wa.me/${waNumber}?text=${encodeURIComponent(msg)}" target="_blank">Also send on WhatsApp</a>`
+    : "";
 
   $("cartView").style.display = "none";
   $("done").style.display = "block";
@@ -373,7 +384,7 @@ Track: ${trackUrl}`;
       <p style="margin:10px 0">Your order code is</p>
       <p style="font-size:26px;font-weight:bold;color:#1b6b3a;letter-spacing:2px">${data.code}</p>
       <p style="color:#666;margin:10px 0">Total: ${naira(data.total)}</p>
-      <a class="order-btn" style="display:block;text-decoration:none;margin:14px 0" href="${wa}" target="_blank">Also send on WhatsApp</a>
+      ${waButton}
       <a style="color:#1b6b3a" href="${trackUrl}">Track my order</a>
     </div>`;
 
@@ -381,8 +392,6 @@ Track: ${trackUrl}`;
   $("address").value = ""; $("notes").value = "";
   renderCart();
 };
-
-$("cateringLink").href = `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent("Hello, I want to make a catering enquiry.")}`;
 
 renderCart();
 loadData();

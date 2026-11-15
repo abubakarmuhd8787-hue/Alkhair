@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Admin - Kwaido and More Catering</title>
+  <title>Admin - Alkhair Drinks Catering Kano</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     [hidden] { display: none !important; }
@@ -58,7 +58,7 @@
   </div>
 
   <div id="panel" hidden>
-    <header><b>Alkhair admin</b><button id="logout">Log out</button></header>
+    <header><b>Alkhair Drinks admin</b><button id="logout">Log out</button></header>
     <div class="tabs">
       <button data-tab="orders" class="active">Orders <span id="newBadge"></span></button>
       <button data-tab="riders">Riders</button>
@@ -98,6 +98,13 @@
     </section>
 
     <section id="tab-settings" hidden>
+      <h3>WhatsApp number for orders</h3>
+      <div class="prow">
+        <input id="waInput" type="tel" placeholder="e.g. 0803 123 4567" style="width:220px">
+        <button class="btn" id="saveWa">Save</button>
+      </div>
+      <p class="hint">Customers' orders and catering enquiries are sent to this number on WhatsApp. Use a number that has WhatsApp. Until you save one, the WhatsApp buttons stay hidden in the shop.</p>
+
       <h3>Site logo</h3>
       <div class="prow">
         <div class="logobox" id="logoBox">No logo yet</div>
@@ -134,11 +141,19 @@
       } catch (e) {}
     }
 
-    function waNumber(p) {
+    // 0803 123 4567 or +234 803 123 4567 -> 2348031234567
+    function normalizePhone(p) {
       let d = String(p || "").replace(/\D/g, "");
-      if (d.startsWith("0")) d = "234" + d.slice(1);
+      if (d.startsWith("2340")) d = "234" + d.slice(4);
+      else if (d.startsWith("0")) d = "234" + d.slice(1);
       return d;
     }
+    // 2348031234567 -> 08031234567
+    function displayPhone(d) {
+      d = String(d || "");
+      return d.startsWith("234") ? "0" + d.slice(3) : d;
+    }
+    const waNumber = normalizePhone;
 
     // ---------- Images ----------
     function resizeImage(file, max, png) {
@@ -344,7 +359,7 @@ Order total: ${naira(o.total)}${o.notes ? "\nNotes: " + o.notes : ""}`;
       if (lastNew >= 0 && newCount > lastNew) beep();
       lastNew = newCount;
       $("newBadge").textContent = newCount ? `(${newCount} new)` : "";
-      document.title = newCount ? `(${newCount}) Admin - Kwaido` : "Admin - Kwaido";
+      document.title = newCount ? `(${newCount}) Admin - Alkhair Drinks` : "Admin - Alkhair Drinks";
       if (document.activeElement && $("ordersList").contains(document.activeElement)) return;
       $("ordersList").innerHTML = data.length ? data.map(orderHtml).join("") : "<p>No orders yet.</p>";
     }
@@ -482,13 +497,23 @@ Order total: ${naira(o.total)}${o.notes ? "\nNotes: " + o.notes : ""}`;
     }
 
     async function loadSettings() {
-      const { data } = await sb.from("settings").select("*").in("key", ["delivery_fee", "logo_url"]);
+      const { data } = await sb.from("settings").select("*").in("key", ["delivery_fee", "logo_url", "whatsapp"]);
       const s = {};
       (data || []).forEach(r => s[r.key] = r.value);
       $("feeInput").value = s.delivery_fee || 0;
+      $("waInput").value = displayPhone(s.whatsapp || "");
       logoUrl = s.logo_url || "";
       showLogo();
     }
+
+    $("saveWa").onclick = async () => {
+      const d = normalizePhone($("waInput").value);
+      if (d.length < 11 || d.length > 15) return alert("Please enter a valid WhatsApp number, like 0803 123 4567.");
+      const { error } = await sb.from("settings").upsert({ key: "whatsapp", value: d });
+      if (error) return alert("Error: " + error.message);
+      $("waInput").value = displayPhone(d);
+      alert("WhatsApp number saved.");
+    };
 
     $("saveFee").onclick = async () => {
       const v = parseInt($("feeInput").value, 10);
